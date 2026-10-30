@@ -11,7 +11,7 @@
   "bugs": { "url": "https://github.com/voermanmenno/scalpel/issues" },
   "homepage": "https://github.com/voermanmenno/scalpel#readme",
   "keywords": ["azure devops", "wiki", "wysiwyg", "markdown", "mermaid", "editor"],
-  "galleryBanner": { "color": "#1e1e1e", "theme": "dark" },
+  "galleryBanner": { "color": "#22222c", "theme": "dark" },
   "engines": {
     "vscode": "^1.100.0"
   },
