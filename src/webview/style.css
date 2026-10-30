@@ -1,0 +1,138 @@
+/* Editor look: follows the VS Code theme, page width and spacing close to the Azure DevOps wiki. */
+:root {
+  --fg: var(--vscode-editor-foreground);
+  --bg: var(--vscode-editor-background);
+  --muted: var(--vscode-descriptionForeground);
+  --border: var(--vscode-panel-border, rgba(128, 128, 128, 0.35));
+  --accent: var(--vscode-textLink-foreground);
+  --code-bg: var(--vscode-textCodeBlock-background, rgba(128, 128, 128, 0.12));
+  --toolbar-bg: var(--vscode-editorWidget-background, var(--bg));
+  --button-hover: var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.2));
+  --warn: var(--vscode-editorWarning-foreground, #c69026);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  color: var(--fg);
+  background: var(--bg);
+  font-family: var(--vscode-font-family, "Segoe UI", sans-serif);
+  font-size: 14px;
+}
+
+#toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 16px;
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border);
+}
+
+#toolbar button {
+  min-width: 28px;
+  height: 26px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 4px;
+  color: var(--fg);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+#toolbar button:hover { background: var(--button-hover); }
+#toolbar .sep { width: 1px; height: 18px; margin: 0 6px; background: var(--border); }
+#status { margin-left: auto; color: var(--muted); font-size: 12px; }
+#status.warn { color: var(--warn); }
+
+#editor { max-width: 960px; margin: 0 auto; padding: 16px 24px 80px; }
+
+.ProseMirror { outline: none; line-height: 1.55; }
+.ProseMirror h1, .ProseMirror h2, .ProseMirror h3 { margin: 1.2em 0 0.5em; line-height: 1.25; }
+.ProseMirror :is(h1, h2, h3, h4, h5, h6) { scroll-margin-top: 56px; } /* clear the sticky toolbar */
+.ProseMirror h1 { font-size: 1.75em; border-bottom: 1px solid var(--border); padding-bottom: 0.2em; }
+.ProseMirror h2 { font-size: 1.4em; }
+.ProseMirror h3 { font-size: 1.15em; }
+.ProseMirror a { color: var(--accent); cursor: pointer; }
+.ProseMirror img.ado-image-missing { min-width: 120px; min-height: 24px; outline: 1px dashed var(--warn); }
+
+/* inline HTML tags: small chips; <br> as a real line break */
+.ado-html-tag { padding: 0 3px; margin: 0 1px; border-radius: 3px; font-size: 0.7em; vertical-align: 0.15em; color: var(--muted); background: var(--code-bg); user-select: none; }
+.ado-mention { color: var(--accent); font-weight: 600; }
+.ado-workitem { padding: 0 3px; border-radius: 3px; background: var(--code-bg); color: var(--accent); cursor: pointer; }
+.ado-workitem-title { margin-left: 4px; color: var(--muted); font-size: 0.92em; user-select: none; }
+.ado-html-br::before { content: "↵"; font-size: 0.7em; color: var(--muted); }
+.ProseMirror code { padding: 0.1em 0.3em; border-radius: 3px; background: var(--code-bg); font-family: var(--vscode-editor-font-family, Consolas, monospace); font-size: 0.92em; }
+.ProseMirror pre { padding: 10px 12px; border-radius: 4px; background: var(--code-bg); overflow-x: auto; }
+.ProseMirror pre code { padding: 0; background: none; }
+.ProseMirror blockquote { margin: 0.8em 0; padding: 0 1em; border-left: 3px solid var(--border); color: var(--muted); }
+.ProseMirror img { max-width: 100%; }
+.ProseMirror table { border-collapse: collapse; margin: 0.8em 0; }
+.ProseMirror td, .ProseMirror th { border: 1px solid var(--border); padding: 4px 8px; vertical-align: top; }
+.ProseMirror th { background: var(--code-bg); }
+.ProseMirror td p, .ProseMirror th p { margin: 0; }
+.ProseMirror .selectedCell::after { background: rgba(80, 140, 255, 0.2); }
+
+/* ADO atoms: kept byte-for-byte, edited through their source */
+.ado-raw { margin: 0.8em 0; border: 1px dashed var(--border); border-radius: 4px; }
+.ado-raw.ProseMirror-selectednode { outline: 2px solid var(--accent); }
+.ado-raw-header { padding: 2px 8px; font-size: 11px; color: var(--muted); border-bottom: 1px dashed var(--border); user-select: none; }
+.ado-raw-body { padding: 4px 8px; }
+.ado-raw-body pre { margin: 0; padding: 4px; background: none; white-space: pre-wrap; font-family: var(--vscode-editor-font-family, Consolas, monospace); font-size: 12px; }
+.ado-raw-body table { margin: 0; }
+
+/* Tags and table of contents look like the ADO wiki: no frame or label until hovered */
+.ado-raw[data-kind="frontmatter"], .ado-raw[data-kind="toc"] { border-color: transparent; }
+.ado-raw[data-kind="frontmatter"]:hover, .ado-raw[data-kind="toc"]:hover { border-color: var(--border); }
+.ado-raw[data-kind="frontmatter"] .ado-raw-header, .ado-raw[data-kind="toc"] .ado-raw-header { display: none; }
+.ado-raw[data-kind="frontmatter"] .ado-raw-body, .ado-raw[data-kind="toc"] .ado-raw-body { padding: 0; }
+
+.ado-tags { width: auto; border-collapse: collapse; font-size: 13px; }
+.ado-tags th, .ado-tags td { padding: 4px 12px; border: 1px solid var(--border); text-align: left; white-space: nowrap; }
+.ado-tags th { font-weight: 600; background: var(--code-bg); }
+
+.ado-raw[data-kind="toc"] .ado-raw-body { display: inline-block; min-width: 260px; padding: 10px 20px 10px 14px; border: 1px solid var(--border); border-radius: 4px; }
+.ado-toc-title { font-weight: 600; margin-bottom: 4px; }
+.ado-raw[data-kind="toc"] ul { margin: 0; padding-left: 1.1em; list-style: none; }
+.ado-raw[data-kind="toc"] .ado-raw-body > ul { padding-left: 0; }
+.ado-raw[data-kind="toc"] li { margin: 2px 0; }
+.ado-raw[data-kind="toc"] a { color: var(--accent); cursor: pointer; text-decoration: none; }
+.ado-raw[data-kind="toc"] a:hover { text-decoration: underline; }
+.ado-raw[data-kind="tosp"] ul { margin: 0; padding-left: 1.2em; }
+
+/* mermaid diagrams */
+.ado-mermaid { overflow-x: auto; text-align: center; }
+.ado-mermaid svg { max-width: 100%; height: auto; }
+.ado-mermaid-loading { color: var(--muted); font-size: 12px; }
+.ado-mermaid-error { text-align: left; color: var(--warn); font-size: 12px; white-space: pre-wrap; }
+
+/* buttons in an atom's header (diagram: enlarge, edit source) */
+.ado-raw-header { display: flex; align-items: center; gap: 6px; }
+.ado-raw-header > span { flex: 1; }
+.ado-raw-action { padding: 1px 8px; border: 1px solid var(--border); border-radius: 3px; color: var(--fg); background: var(--bg); font: inherit; font-size: 11px; cursor: pointer; }
+.ado-raw-action:hover { background: var(--button-hover); }
+
+/* full-window overlay: diagram viewer and source editor */
+.ado-overlay { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; background: var(--bg); }
+.ado-overlay-header { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 16px; border-bottom: 1px solid var(--border); background: var(--toolbar-bg); }
+.ado-overlay-title { flex: 1; font-weight: 600; }
+.ado-overlay-button { min-width: 30px; height: 28px; padding: 0 10px; border: 1px solid var(--border); border-radius: 4px; color: var(--fg); background: var(--bg); font: inherit; cursor: pointer; }
+.ado-overlay-button:hover { background: var(--button-hover); }
+.ado-overlay-button.primary { color: var(--vscode-button-foreground, #fff); background: var(--vscode-button-background, #005fb8); border-color: transparent; }
+.ado-overlay-body { flex: 1; min-height: 0; }
+.ado-zoom { display: inline-flex; align-items: center; gap: 4px; margin-right: 12px; }
+.ado-zoom-label { min-width: 56px; text-align: center; color: var(--muted); font-size: 12px; }
+.ado-zoom-canvas { height: 100%; overflow: auto; padding: 12px; box-sizing: border-box; }
+.ado-zoom-canvas svg { display: block; margin: 0 auto; }
+.ado-source-editor { display: grid; grid-template-columns: minmax(0, 1fr); }
+.ado-source-editor.with-preview { grid-template-columns: minmax(320px, 2fr) minmax(0, 3fr); }
+.ado-source-editor textarea {
+  height: 100%; box-sizing: border-box; margin: 0; padding: 12px 14px; resize: none; border: 0; outline: none;
+  border-right: 1px solid var(--border); color: var(--fg); background: var(--vscode-input-background, var(--bg));
+  font-family: var(--vscode-editor-font-family, Consolas, monospace); font-size: 14px; line-height: 1.5; tab-size: 4;
+}

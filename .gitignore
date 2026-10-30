@@ -1,0 +1,6 @@
+node_modules/
+dist/
+*.vsix
+spike/node_modules/
+test/harness-page.js
+corpus.log

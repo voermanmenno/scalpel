@@ -1,0 +1,12 @@
+src/**
+test/**
+spike/**
+node_modules/**
+.vscode/**
+.github/**
+**/*.map
+esbuild.mjs
+tsconfig.json
+corpus.log
+*.vsix
+.gitignore

@@ -1,0 +1,17 @@
+{
+  "description": "WYSIWYG-editor voor Azure DevOps wiki-pagina's die alleen de gewijzigde Markdown terugschrijft.",
+  "command.openEditor": "Openen in Scalpel",
+  "command.openSource": "Open als Markdown-tekst",
+  "command.publish": "Publiceren",
+  "command.pull": "Ophalen uit wiki",
+  "command.newPage": "Nieuwe pagina",
+  "command.refreshPages": "Vernieuwen",
+  "command.chooseWiki": "Kies wiki-map",
+  "command.openPage": "Open pagina",
+  "command.findPage": "Pagina zoeken",
+  "command.searchText": "Zoeken in de wiki",
+  "config.wikiPath": "Map van de lokale git-clone van de wiki (leeg: de wiki van de laatst geopende pagina).",
+  "config.pullOnStartup": "Bij het starten van VS Code de laatste versie van de wiki ophalen (git pull --rebase --autostash). Werkt alleen als scalpel.wikiPath is ingesteld.",
+  "view.pages": "Pagina's",
+  "view.pages.welcome": "Nog geen wiki gekozen. Open een pagina in de editor, of kies de map van je wiki-clone.\n[Kies wiki-map](command:scalpel.chooseWiki)"
+}

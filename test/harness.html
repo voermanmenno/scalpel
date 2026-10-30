@@ -1,0 +1,54 @@
+<!doctype html>
+<!-- Browser harness for the webview bundle: mocks the VS Code API and loads window.__page
+     (generated into harness-page.js by `node test/harness-page.mjs <page path substring>`). -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../dist/webview.css">
+<style>
+  :root { --vscode-editor-foreground: #1f1f1f; --vscode-editor-background: #ffffff; --vscode-textLink-foreground: #005fb8; }
+</style>
+<title>Scalpel harness</title>
+</head>
+<body>
+<div id="toolbar">
+  <button data-action="bold"><b>B</b></button><button data-action="italic"><i>I</i></button>
+  <button data-action="strike"><s>S</s></button><button data-action="code">&lt;/&gt;</button><span class="sep"></span>
+  <button data-action="h1">H1</button><button data-action="h2">H2</button><button data-action="h3">H3</button>
+  <button data-action="text">¶</button><span class="sep"></span>
+  <button data-action="bullet">•</button><button data-action="ordered">1.</button><button data-action="quote">❝</button>
+  <button data-action="codeblock">{ }</button><span class="sep"></span>
+  <button data-action="table">▦</button><button data-action="addRow">+row</button><button data-action="addCol">+col</button>
+  <button data-action="delRow">−row</button><button data-action="delCol">−col</button><span class="sep"></span>
+  <button data-action="source">Markdown</button>
+  <span id="status"></span>
+</div>
+<div id="editor"></div>
+<script src="harness-page.js"></script>
+<script>
+  // ?crlf: deliver the page with Windows line endings, as VS Code does for a CRLF file
+  if (location.search.includes('crlf')) window.__page = window.__page.replace(/\n/g, '\r\n');
+  window.__messages = [];
+  window.__source = window.__page;
+  window.acquireVsCodeApi = () => ({
+    postMessage(message) {
+      window.__messages.push(message);
+      if (message.type === 'ready') window.postMessage({ type: 'load', text: window.__page, mermaidUrl: '../dist/mermaid.min.js' }, '*');
+      if (message.type === 'edit') window.__source = message.text;
+      if (message.type === 'saveAttachment')
+        setTimeout(() => window.postMessage({ type: 'attachmentSaved', id: message.id, path: '/.attachments/image-harness.png' }, '*'), 50);
+      if (message.type === 'lookup') {
+        const value = message.kind === 'identity' ? 'Test Person'
+          : JSON.stringify({ type: 'Feature', title: 'Sample work item title ' + message.key, state: 'Active' });
+        setTimeout(() => window.postMessage({ type: 'lookup', kind: message.kind, key: message.key, value }, '*'), 200);
+      }
+      if (message.type === 'image') {
+        const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="40"><rect width="160" height="40" fill="#5b9bd5"/><text x="8" y="25" fill="white">image</text></svg>';
+        window.postMessage({ type: 'image', id: message.id, url: 'data:image/svg+xml,' + encodeURIComponent(svg) }, '*');
+      }
+    },
+  });
+</script>
+<script src="../dist/webview.js"></script>
+</body>
+</html>

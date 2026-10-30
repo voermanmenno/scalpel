@@ -1,0 +1,17 @@
+{
+  "description": "WYSIWYG editor for Azure DevOps wiki pages that writes back only the Markdown you changed.",
+  "command.openEditor": "Open in Scalpel",
+  "command.openSource": "Open as Markdown text",
+  "command.publish": "Publish",
+  "command.pull": "Pull from wiki",
+  "command.newPage": "New page",
+  "command.refreshPages": "Refresh",
+  "command.chooseWiki": "Choose wiki folder",
+  "command.openPage": "Open page",
+  "command.findPage": "Find page",
+  "command.searchText": "Search the wiki",
+  "config.wikiPath": "Folder of the local git clone of the wiki (empty: the wiki of the last page opened).",
+  "config.pullOnStartup": "Pull the latest version of the wiki when VS Code starts (git pull --rebase --autostash). Only works when scalpel.wikiPath is set.",
+  "view.pages": "Pages",
+  "view.pages.welcome": "No wiki chosen yet. Open a page in the editor, or choose the folder of your wiki clone.\n[Choose wiki folder](command:scalpel.chooseWiki)"
+}

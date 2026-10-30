@@ -1,0 +1,152 @@
+{
+  "name": "scalpel",
+  "displayName": "Scalpel – WYSIWYG for Azure DevOps Wiki",
+  "description": "%description%",
+  "version": "0.6.0",
+  "publisher": "app-men",
+  "author": { "name": "App-Men" },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "repository": { "type": "git", "url": "https://github.com/voermanmenno/scalpel.git" },
+  "bugs": { "url": "https://github.com/voermanmenno/scalpel/issues" },
+  "homepage": "https://github.com/voermanmenno/scalpel#readme",
+  "keywords": ["azure devops", "wiki", "wysiwyg", "markdown", "mermaid", "editor"],
+  "galleryBanner": { "color": "#1e1e1e", "theme": "dark" },
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "type": "module",
+  "main": "./dist/extension.cjs",
+  "l10n": "./l10n",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "scalpel.editor",
+        "displayName": "Scalpel",
+        "selector": [
+          {
+            "filenamePattern": "*.md"
+          }
+        ],
+        "priority": "option"
+      }
+    ],
+    "commands": [
+      { "command": "scalpel.openEditor", "title": "%command.openEditor%", "category": "Scalpel", "icon": "$(preview)" },
+      { "command": "scalpel.openSource", "title": "%command.openSource%", "category": "Scalpel", "icon": "$(code)" },
+      { "command": "scalpel.publish", "title": "%command.publish%", "category": "Scalpel", "icon": "$(cloud-upload)" },
+      { "command": "scalpel.pull", "title": "%command.pull%", "category": "Scalpel", "icon": "$(cloud-download)" },
+      { "command": "scalpel.newPage", "title": "%command.newPage%", "category": "Scalpel", "icon": "$(new-file)" },
+      { "command": "scalpel.refreshPages", "title": "%command.refreshPages%", "category": "Scalpel", "icon": "$(refresh)" },
+      { "command": "scalpel.chooseWiki", "title": "%command.chooseWiki%", "category": "Scalpel", "icon": "$(folder-opened)" },
+      { "command": "scalpel.openPage", "title": "%command.openPage%", "category": "Scalpel" },
+      { "command": "scalpel.findPage", "title": "%command.findPage%", "category": "Scalpel", "icon": "$(search)" },
+      { "command": "scalpel.searchText", "title": "%command.searchText%", "category": "Scalpel", "icon": "$(search-fuzzy)" }
+    ],
+    "keybindings": [
+      { "command": "scalpel.findPage", "key": "ctrl+alt+w", "mac": "cmd+alt+w" },
+      { "command": "scalpel.searchText", "key": "ctrl+alt+shift+w", "mac": "cmd+alt+shift+w" }
+    ],
+    "configuration": {
+      "title": "Scalpel",
+      "properties": {
+        "scalpel.wikiPath": {
+          "type": "string",
+          "default": "",
+          "description": "%config.wikiPath%"
+        },
+        "scalpel.pullOnStartup": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.pullOnStartup%"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        { "id": "scalpel", "title": "Scalpel", "icon": "media/activity.svg" }
+      ]
+    },
+    "views": {
+      "scalpel": [
+        { "id": "scalpel.pages", "name": "%view.pages%" }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "scalpel.pages",
+        "contents": "%view.pages.welcome%"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "scalpel.findPage", "when": "view == scalpel.pages", "group": "navigation@0" },
+        { "command": "scalpel.searchText", "when": "view == scalpel.pages", "group": "navigation@0" },
+        { "command": "scalpel.pull", "when": "view == scalpel.pages", "group": "navigation@1" },
+        { "command": "scalpel.publish", "when": "view == scalpel.pages", "group": "navigation@1" },
+        { "command": "scalpel.newPage", "when": "view == scalpel.pages", "group": "navigation@2" },
+        { "command": "scalpel.refreshPages", "when": "view == scalpel.pages", "group": "navigation@3" },
+        { "command": "scalpel.chooseWiki", "when": "view == scalpel.pages" }
+      ],
+      "view/item/context": [
+        { "command": "scalpel.newPage", "when": "view == scalpel.pages && viewItem == wikiPage", "group": "inline" },
+        { "command": "scalpel.newPage", "when": "view == scalpel.pages && viewItem == wikiPage", "group": "1_edit" }
+      ],
+      "commandPalette": [
+        { "command": "scalpel.openPage", "when": "false" }
+      ],
+      "editor/title": [
+        {
+          "command": "scalpel.openEditor",
+          "when": "resourceLangId == markdown && activeCustomEditorId != scalpel.editor",
+          "group": "navigation"
+        },
+        {
+          "command": "scalpel.openSource",
+          "when": "activeCustomEditorId == scalpel.editor",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "scalpel.openEditor",
+          "when": "resourceExtname == .md",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "corpus": "node --import tsx test/corpus.mts",
+    "package": "npm run build && vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@milkdown/kit": "7.22.3",
+    "@types/diff-match-patch": "1.0.36",
+    "@types/jsdom": "21.1.7",
+    "@types/node": "22.15.21",
+    "@types/vscode": "1.100.0",
+    "@vscode/vsce": "4.0.0",
+    "diff-match-patch": "1.0.5",
+    "esbuild": "0.28.2",
+    "jsdom": "30.1.2",
+    "mdast-util-to-markdown": "2.2.1",
+    "mermaid": "12.1.0",
+    "remark-frontmatter": "5.0.0",
+    "remark-gfm": "4.0.1",
+    "remark-parse": "11.0.0",
+    "remark-stringify": "11.0.0",
+    "tsx": "4.20.3",
+    "typescript": "6.0.3",
+    "unified": "11.0.5",
+    "vitest": "5.0.4"
+  }
+}
