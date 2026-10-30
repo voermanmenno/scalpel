@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.1
+
+- Mermaid 12.2.0 (fixes a low-severity KaTeX advisory, GHSA-238p-pmpm-9mq7).
+- New icon.
+
 ## 0.6.0
 
 First public release as **Scalpel**.

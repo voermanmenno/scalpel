@@ -2,16 +2,33 @@
   "name": "scalpel",
   "displayName": "Scalpel – WYSIWYG for Azure DevOps Wiki",
   "description": "%description%",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "publisher": "app-men",
-  "author": { "name": "App-Men" },
+  "author": {
+    "name": "App-Men"
+  },
   "license": "MIT",
   "icon": "media/icon.png",
-  "repository": { "type": "git", "url": "https://github.com/voermanmenno/scalpel.git" },
-  "bugs": { "url": "https://github.com/voermanmenno/scalpel/issues" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/voermanmenno/scalpel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/voermanmenno/scalpel/issues"
+  },
   "homepage": "https://github.com/voermanmenno/scalpel#readme",
-  "keywords": ["azure devops", "wiki", "wysiwyg", "markdown", "mermaid", "editor"],
-  "galleryBanner": { "color": "#22222c", "theme": "dark" },
+  "keywords": [
+    "azure devops",
+    "wiki",
+    "wysiwyg",
+    "markdown",
+    "mermaid",
+    "editor"
+  ],
+  "galleryBanner": {
+    "color": "#22222c",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.100.0"
   },
@@ -21,7 +38,9 @@
   "type": "module",
   "main": "./dist/extension.cjs",
   "l10n": "./l10n",
-  "activationEvents": ["onStartupFinished"],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "contributes": {
     "customEditors": [
       {
@@ -36,20 +55,77 @@
       }
     ],
     "commands": [
-      { "command": "scalpel.openEditor", "title": "%command.openEditor%", "category": "Scalpel", "icon": "$(preview)" },
-      { "command": "scalpel.openSource", "title": "%command.openSource%", "category": "Scalpel", "icon": "$(code)" },
-      { "command": "scalpel.publish", "title": "%command.publish%", "category": "Scalpel", "icon": "$(cloud-upload)" },
-      { "command": "scalpel.pull", "title": "%command.pull%", "category": "Scalpel", "icon": "$(cloud-download)" },
-      { "command": "scalpel.newPage", "title": "%command.newPage%", "category": "Scalpel", "icon": "$(new-file)" },
-      { "command": "scalpel.refreshPages", "title": "%command.refreshPages%", "category": "Scalpel", "icon": "$(refresh)" },
-      { "command": "scalpel.chooseWiki", "title": "%command.chooseWiki%", "category": "Scalpel", "icon": "$(folder-opened)" },
-      { "command": "scalpel.openPage", "title": "%command.openPage%", "category": "Scalpel" },
-      { "command": "scalpel.findPage", "title": "%command.findPage%", "category": "Scalpel", "icon": "$(search)" },
-      { "command": "scalpel.searchText", "title": "%command.searchText%", "category": "Scalpel", "icon": "$(search-fuzzy)" }
+      {
+        "command": "scalpel.openEditor",
+        "title": "%command.openEditor%",
+        "category": "Scalpel",
+        "icon": "$(preview)"
+      },
+      {
+        "command": "scalpel.openSource",
+        "title": "%command.openSource%",
+        "category": "Scalpel",
+        "icon": "$(code)"
+      },
+      {
+        "command": "scalpel.publish",
+        "title": "%command.publish%",
+        "category": "Scalpel",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "scalpel.pull",
+        "title": "%command.pull%",
+        "category": "Scalpel",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "scalpel.newPage",
+        "title": "%command.newPage%",
+        "category": "Scalpel",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "scalpel.refreshPages",
+        "title": "%command.refreshPages%",
+        "category": "Scalpel",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "scalpel.chooseWiki",
+        "title": "%command.chooseWiki%",
+        "category": "Scalpel",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "scalpel.openPage",
+        "title": "%command.openPage%",
+        "category": "Scalpel"
+      },
+      {
+        "command": "scalpel.findPage",
+        "title": "%command.findPage%",
+        "category": "Scalpel",
+        "icon": "$(search)"
+      },
+      {
+        "command": "scalpel.searchText",
+        "title": "%command.searchText%",
+        "category": "Scalpel",
+        "icon": "$(search-fuzzy)"
+      }
     ],
     "keybindings": [
-      { "command": "scalpel.findPage", "key": "ctrl+alt+w", "mac": "cmd+alt+w" },
-      { "command": "scalpel.searchText", "key": "ctrl+alt+shift+w", "mac": "cmd+alt+shift+w" }
+      {
+        "command": "scalpel.findPage",
+        "key": "ctrl+alt+w",
+        "mac": "cmd+alt+w"
+      },
+      {
+        "command": "scalpel.searchText",
+        "key": "ctrl+alt+shift+w",
+        "mac": "cmd+alt+shift+w"
+      }
     ],
     "configuration": {
       "title": "Scalpel",
@@ -68,12 +144,19 @@
     },
     "viewsContainers": {
       "activitybar": [
-        { "id": "scalpel", "title": "Scalpel", "icon": "media/activity.svg" }
+        {
+          "id": "scalpel",
+          "title": "Scalpel",
+          "icon": "media/activity.svg"
+        }
       ]
     },
     "views": {
       "scalpel": [
-        { "id": "scalpel.pages", "name": "%view.pages%" }
+        {
+          "id": "scalpel.pages",
+          "name": "%view.pages%"
+        }
       ]
     },
     "viewsWelcome": [
@@ -84,20 +167,58 @@
     ],
     "menus": {
       "view/title": [
-        { "command": "scalpel.findPage", "when": "view == scalpel.pages", "group": "navigation@0" },
-        { "command": "scalpel.searchText", "when": "view == scalpel.pages", "group": "navigation@0" },
-        { "command": "scalpel.pull", "when": "view == scalpel.pages", "group": "navigation@1" },
-        { "command": "scalpel.publish", "when": "view == scalpel.pages", "group": "navigation@1" },
-        { "command": "scalpel.newPage", "when": "view == scalpel.pages", "group": "navigation@2" },
-        { "command": "scalpel.refreshPages", "when": "view == scalpel.pages", "group": "navigation@3" },
-        { "command": "scalpel.chooseWiki", "when": "view == scalpel.pages" }
+        {
+          "command": "scalpel.findPage",
+          "when": "view == scalpel.pages",
+          "group": "navigation@0"
+        },
+        {
+          "command": "scalpel.searchText",
+          "when": "view == scalpel.pages",
+          "group": "navigation@0"
+        },
+        {
+          "command": "scalpel.pull",
+          "when": "view == scalpel.pages",
+          "group": "navigation@1"
+        },
+        {
+          "command": "scalpel.publish",
+          "when": "view == scalpel.pages",
+          "group": "navigation@1"
+        },
+        {
+          "command": "scalpel.newPage",
+          "when": "view == scalpel.pages",
+          "group": "navigation@2"
+        },
+        {
+          "command": "scalpel.refreshPages",
+          "when": "view == scalpel.pages",
+          "group": "navigation@3"
+        },
+        {
+          "command": "scalpel.chooseWiki",
+          "when": "view == scalpel.pages"
+        }
       ],
       "view/item/context": [
-        { "command": "scalpel.newPage", "when": "view == scalpel.pages && viewItem == wikiPage", "group": "inline" },
-        { "command": "scalpel.newPage", "when": "view == scalpel.pages && viewItem == wikiPage", "group": "1_edit" }
+        {
+          "command": "scalpel.newPage",
+          "when": "view == scalpel.pages && viewItem == wikiPage",
+          "group": "inline"
+        },
+        {
+          "command": "scalpel.newPage",
+          "when": "view == scalpel.pages && viewItem == wikiPage",
+          "group": "1_edit"
+        }
       ],
       "commandPalette": [
-        { "command": "scalpel.openPage", "when": "false" }
+        {
+          "command": "scalpel.openPage",
+          "when": "false"
+        }
       ],
       "editor/title": [
         {
@@ -139,7 +260,7 @@
     "esbuild": "0.28.2",
     "jsdom": "30.1.2",
     "mdast-util-to-markdown": "2.2.1",
-    "mermaid": "12.1.0",
+    "mermaid": "12.2.0",
     "remark-frontmatter": "5.0.0",
     "remark-gfm": "4.0.1",
     "remark-parse": "11.0.0",
