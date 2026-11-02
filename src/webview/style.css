@@ -92,18 +92,42 @@ body {
 .ado-raw[data-kind="frontmatter"] .ado-raw-header, .ado-raw[data-kind="toc"] .ado-raw-header { display: none; }
 .ado-raw[data-kind="frontmatter"] .ado-raw-body, .ado-raw[data-kind="toc"] .ado-raw-body { padding: 0; }
 
-.ado-tags { width: auto; border-collapse: collapse; font-size: 13px; }
-.ado-tags th, .ado-tags td { padding: 4px 12px; border: 1px solid var(--border); text-align: left; white-space: nowrap; }
-.ado-tags th { font-weight: 600; background: var(--code-bg); }
+/* front matter like the ADO wiki: a box per section, a card per tag (cards wrap, never overlap) */
+.ado-tags { padding: 8px 10px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
+.ado-tags + .ado-tags { margin-top: 8px; }
+.ado-tags-title { margin-bottom: 8px; color: var(--muted); }
+.ado-tags-cards { display: flex; flex-wrap: wrap; gap: 8px; }
+.ado-tag { border: 1px solid var(--border); border-radius: 2px; }
+.ado-tag-name { padding: 4px 12px; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--border); }
+.ado-tag-value { padding: 4px 12px; font-size: 12px; }
 
-.ado-raw[data-kind="toc"] .ado-raw-body { display: inline-block; min-width: 260px; padding: 10px 20px 10px 14px; border: 1px solid var(--border); border-radius: 4px; }
+/* table of contents and sub pages like the ADO wiki: a box with bulleted, underlined links */
+.ado-raw:is([data-kind="toc"], [data-kind="tosp"]) { border-color: transparent; }
+.ado-raw:is([data-kind="toc"], [data-kind="tosp"]):hover { border-color: var(--border); }
+.ado-raw[data-kind="tosp"] .ado-raw-header { display: none; }
+.ado-raw:is([data-kind="toc"], [data-kind="tosp"]) .ado-raw-body { display: inline-block; min-width: 260px; padding: 10px 20px 10px 14px; border: 1px solid var(--border); border-radius: 4px; }
 .ado-toc-title { font-weight: 600; margin-bottom: 4px; }
-.ado-raw[data-kind="toc"] ul { margin: 0; padding-left: 1.1em; list-style: none; }
-.ado-raw[data-kind="toc"] .ado-raw-body > ul { padding-left: 0; }
-.ado-raw[data-kind="toc"] li { margin: 2px 0; }
-.ado-raw[data-kind="toc"] a { color: var(--accent); cursor: pointer; text-decoration: none; }
-.ado-raw[data-kind="toc"] a:hover { text-decoration: underline; }
-.ado-raw[data-kind="tosp"] ul { margin: 0; padding-left: 1.2em; }
+.ado-raw:is([data-kind="toc"], [data-kind="tosp"]) ul { margin: 0; padding-left: 1em; list-style: disc; }
+.ado-raw:is([data-kind="toc"], [data-kind="tosp"]) li { margin: 2px 0; }
+.ado-raw:is([data-kind="toc"], [data-kind="tosp"]) a { color: var(--accent); cursor: pointer; text-decoration: underline; }
+
+/* an HTML comment: invisible in the ADO wiki, here a small muted line */
+.ado-raw[data-kind="html"]:has(.ado-comment) { margin: 0.2em 0; border-color: transparent; }
+.ado-raw[data-kind="html"]:has(.ado-comment):hover { border-color: var(--border); }
+.ado-raw[data-kind="html"]:has(.ado-comment) .ado-raw-header { display: none; }
+.ado-comment { color: var(--muted); font-size: 11px; font-family: var(--vscode-editor-font-family, Consolas, monospace); }
+
+/* lists: compact like the ADO wiki, unless the Markdown has blank lines between items */
+.ProseMirror li[data-spread="false"] > p { margin: 0; }
+.ProseMirror li[data-spread="false"] > :is(ul, ol) { margin: 0; }
+/* task list items: a check box like the ADO wiki */
+.ProseMirror li[data-item-type="task"] { list-style: none; position: relative; }
+.ProseMirror li[data-item-type="task"]::before { content: "☐"; position: absolute; left: -1.3em; color: var(--muted); }
+.ProseMirror li[data-item-type="task"][data-checked="true"]::before { content: "☑"; }
+
+/* placeholders such as '<Applicatie>' are plain text; e-mail addresses are not links in the ADO wiki */
+.ado-html-text { white-space: pre-wrap; }
+.ProseMirror a[href^="mailto:"] { color: inherit; text-decoration: none; }
 
 /* mermaid diagrams */
 .ado-mermaid { overflow-x: auto; text-align: center; }

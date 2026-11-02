@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import * as crypto from 'node:crypto';
-import { git, createPage, type WikiPage } from './wiki';
+import { git, createPage, loadTree, type WikiPage } from './wiki';
 import { WikiLocation, WikiTreeProvider } from './sidebar';
 import { publish } from './publish';
 import { findPage, searchText } from './search';
@@ -193,9 +193,13 @@ class WikiEditorProvider implements vscode.CustomTextEditorProvider {
         case 'saveAttachment':
           webview.postMessage({ type: 'attachmentSaved', id: message.id, path: saveAttachment(wikiRoot, String(message.mime), String(message.data)) });
           break;
-        case 'lookup':
-          webview.postMessage({ type: 'lookup', kind: message.kind, key: message.key, value: await adoLookup(String(message.kind), String(message.key), wikiRoot) });
+        case 'lookup': {
+          const value = message.kind === 'subpages'
+            ? await subpages(wikiRoot, document.uri.fsPath)
+            : await adoLookup(String(message.kind), String(message.key), wikiRoot);
+          webview.postMessage({ type: 'lookup', kind: message.kind, key: message.key, value });
           break;
+        }
         case 'openWorkitem': {
           const context = await adoContext(wikiRoot);
           if (context && /^\d+$/.test(String(message.id)))
@@ -328,6 +332,22 @@ function adoContext(wikiRoot: string) {
     adoContexts.set(wikiRoot, context);
   }
   return context;
+}
+
+/// Sub pages of a page for '[[_TOSP_]]', as JSON [{title, href, children}] in wiki order.
+async function subpages(wikiRoot: string, file: string): Promise<string> {
+  const relative = path.relative(wikiRoot, file).split(path.sep).join('/');
+  const find = (pages: WikiPage[]): WikiPage | undefined => {
+    for (const page of pages) {
+      if (page.relative.toLowerCase() === relative.toLowerCase()) return page;
+      const found = find(page.children);
+      if (found) return found;
+    }
+    return undefined;
+  };
+  const list = (pages: WikiPage[]): unknown[] =>
+    pages.map(p => ({ title: p.title, href: `/${p.relative.slice(0, -3)}`, children: list(p.children) }));
+  return JSON.stringify(list(find(await loadTree(wikiRoot))?.children ?? []));
 }
 
 /// Person name for a mention GUID, or work item {type, title, state} as JSON. Cached per session.

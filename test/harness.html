@@ -39,6 +39,7 @@
         setTimeout(() => window.postMessage({ type: 'attachmentSaved', id: message.id, path: '/.attachments/image-harness.png' }, '*'), 50);
       if (message.type === 'lookup') {
         const value = message.kind === 'identity' ? 'Test Person'
+          : message.kind === 'subpages' ? JSON.stringify([{ title: 'Child page', href: '/Child', children: [{ title: 'Grandchild page', href: '/Child/Grandchild', children: [] }] }, { title: 'Second child', href: '/Second', children: [] }])
           : JSON.stringify({ type: 'Feature', title: 'Sample work item title ' + message.key, state: 'Active' });
         setTimeout(() => window.postMessage({ type: 'lookup', kind: message.kind, key: message.key, value }, '*'), 200);
       }

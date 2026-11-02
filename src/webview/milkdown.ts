@@ -1,6 +1,6 @@
 // Milkdown editor setup with ADO-wiki nodes. DOM-only: no VS Code API, so it also runs headless in tests.
 import { Editor, rootCtx, defaultValueCtx, editorViewCtx, parserCtx, serializerCtx } from '@milkdown/kit/core';
-import { commonmark, imageSchema, htmlSchema } from '@milkdown/kit/preset/commonmark';
+import { commonmark, imageSchema, htmlSchema, hardbreakSchema } from '@milkdown/kit/preset/commonmark';
 import { gfm } from '@milkdown/kit/preset/gfm';
 import { listener, listenerCtx } from '@milkdown/kit/plugin/listener';
 import { clipboard } from '@milkdown/kit/plugin/clipboard';
@@ -31,6 +31,20 @@ const CLOSE_TAG = /^<\/([a-z][a-z0-9]*)\s*>$/i;
 const VOID_TAGS = new Set(['br', 'img', 'hr', 'wbr']);
 const MENTION = /^<[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}>$/i;
 
+/// HTML elements. Anything else in angle brackets ('<Applicatie>', '<OTAP>', '<TODO>') is a
+/// placeholder that the ADO wiki shows as literal text, and so do we.
+const HTML_TAGS = new Set(('a abbr address article aside audio b bdi bdo big blockquote body br button caption center cite '
+  + 'code col colgroup data dd del details dfn div dl dt em figcaption figure font footer form h1 h2 h3 h4 h5 h6 head '
+  + 'header hr html i iframe img input ins kbd label legend li link main mark meta nav ol p picture pre q rp rt ruby s '
+  + 'samp section small source span strike strong style sub summary sup table tbody td tfoot th thead time tr tt u ul '
+  + 'var video wbr').split(' '));
+const isHtmlTag = (name: string) => HTML_TAGS.has(name.toLowerCase());
+
+const escapeHtml = (text: string) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+/// HTML as the ADO wiki shows it: placeholders in angle brackets stay visible as text.
+const withPlaceholders = (html: string) =>
+  html.replace(/<\/?([a-z][a-z0-9-]*)\b[^<>]*>/gi, (tag, name: string) => (isHtmlTag(name) ? tag : escapeHtml(tag)));
+
 const TAG_STYLES: Record<string, string> = {
   b: 'font-weight:bold', strong: 'font-weight:bold', i: 'font-style:italic', em: 'font-style:italic',
   u: 'text-decoration:underline', ins: 'text-decoration:underline', s: 'text-decoration:line-through',
@@ -59,7 +73,7 @@ function htmlDecorations(doc: ProseNode): DecorationSet {
       const pos = blockPos + 1 + offset;
       const opening = OPEN_TAG.exec(value);
       const closing = CLOSE_TAG.exec(value);
-      if (opening && !VOID_TAGS.has(opening[1].toLowerCase()) && !value.endsWith('/>') && !MENTION.test(value))
+      if (opening && isHtmlTag(opening[1]) && !VOID_TAGS.has(opening[1].toLowerCase()) && !value.endsWith('/>'))
         open.push({ name: opening[1].toLowerCase(), style: styleOf(opening[1], opening[2]), from: pos + child.nodeSize });
       else if (closing) {
         const i = open.map(o => o.name).lastIndexOf(closing[1].toLowerCase());
@@ -148,12 +162,22 @@ const htmlView = $view(htmlSchema.node, () => (node: ProseNode) => {
     const unsubscribe = onLookup(show);
     return { dom, ignoreMutation: () => true, destroy: unsubscribe };
   }
-  dom.className = 'ado-html-tag';
   const tag = OPEN_TAG.exec(value) ?? CLOSE_TAG.exec(value);
+  if (tag && !isHtmlTag(tag[1])) {
+    // placeholder such as '<Applicatie>': literal text, as in the ADO wiki
+    dom.className = 'ado-html-text';
+    dom.textContent = value;
+    return { dom, ignoreMutation: () => true };
+  }
+  dom.className = 'ado-html-tag';
   dom.textContent = tag ? (value.startsWith('</') ? `/${tag[1]}` : tag[1]) : value;
   dom.title = value;
   return { dom, ignoreMutation: () => true };
 });
+
+/// Soft line break (a newline inside a paragraph): the ADO wiki shows it as a new line, so do we.
+/// Display only: the Markdown keeps the plain newline.
+const hardbreakView = $view(hardbreakSchema.node, () => () => ({ dom: document.createElement('br'), ignoreMutation: () => true }));
 
 const remarkFrontmatterPlugin = $remark('remarkFrontmatter', () => remarkFrontmatter as any, ['yaml']);
 const remarkAdoPlugin = $remark('remarkAdo', () => remarkAdo as any);
@@ -194,25 +218,20 @@ const LABELS: Record<AdoRawKind, () => string> = {
 function renderRaw(body: HTMLElement, kind: AdoRawKind, value: string, view: EditorView) {
   body.replaceChildren();
   if (kind === 'frontmatter') {
-    // Like the ADO wiki: one row, tag names as column headers.
-    const tags = value.split(/\r?\n/).map(line => /^\s*-\s*([^:]+):\s*(.*?)\s*$/.exec(line)).filter(m => m !== null);
-    if (!tags.length) { body.append(pre(value)); return; }
-    const table = document.createElement('table');
-    table.className = 'ado-tags';
-    const head = table.createTHead().insertRow();
-    const row = table.createTBody().insertRow();
-    for (const [, name, tagValue] of tags) {
-      const th = document.createElement('th');
-      th.textContent = name.trim();
-      head.append(th);
-      row.insertCell().textContent = tagValue;
-    }
-    body.append(table);
+    renderTags(body, value);
   } else if (kind === 'toc') {
     renderToc(body, view);
+  } else if (kind === 'tosp') {
+    renderSubpages(body);
+  } else if (kind === 'html' && /^\s*(<!--[\s\S]*?-->\s*)+$/.test(value)) {
+    // a comment is invisible in the ADO wiki: show it small, so it can still be found and edited
+    const note = document.createElement('div');
+    note.className = 'ado-comment';
+    note.textContent = value.trim();
+    body.append(note);
   } else if (kind === 'html') {
     const div = document.createElement('div');
-    div.innerHTML = value;
+    div.innerHTML = withPlaceholders(value);
     body.append(div);
   } else if (isMermaid(kind, value)) {
     const diagram = document.createElement('div');
@@ -226,6 +245,73 @@ function renderRaw(body: HTMLElement, kind: AdoRawKind, value: string, view: Edi
   } else {
     body.append(pre(value));
   }
+}
+
+/// Front matter like the ADO wiki: a box per section ('tags:'), a small card per tag.
+function renderTags(body: HTMLElement, value: string) {
+  const sections: { title: string; tags: [string, string][] }[] = [];
+  for (const line of value.split(/\r?\n/)) {
+    if (/^-{3}\s*$/.test(line)) continue;
+    const section = /^([^\s-][^:]*):\s*$/.exec(line);
+    const tag = /^\s*(?:-\s*)?([^:\s][^:]*):\s*(.*?)\s*$/.exec(line);
+    if (section) sections.push({ title: section[1].trim(), tags: [] });
+    else if (tag) (sections.at(-1) ?? sections[sections.push({ title: '', tags: [] }) - 1]).tags.push([tag[1].trim(), tag[2]]);
+  }
+  if (!sections.some(s => s.tags.length)) { body.append(pre(value)); return; }
+  for (const { title, tags } of sections) {
+    const box = document.createElement('div');
+    box.className = 'ado-tags';
+    if (title) {
+      const heading = document.createElement('div');
+      heading.className = 'ado-tags-title';
+      heading.textContent = title;
+      box.append(heading);
+    }
+    const cards = document.createElement('div');
+    cards.className = 'ado-tags-cards';
+    for (const [name, tagValue] of tags) {
+      const card = document.createElement('div');
+      card.className = 'ado-tag';
+      const label = document.createElement('div');
+      label.className = 'ado-tag-name';
+      label.textContent = name;
+      const text = document.createElement('div');
+      text.className = 'ado-tag-value';
+      text.textContent = tagValue;
+      card.append(label, text);
+      cards.append(card);
+    }
+    box.append(cards);
+    body.append(box);
+  }
+}
+
+interface Subpage { title: string; href: string; children: Subpage[] }
+
+/// '[[_TOSP_]]' like the ADO wiki: 'Child pages' with the tree below this page (from the host).
+function renderSubpages(body: HTMLElement) {
+  body.replaceChildren();
+  const title = document.createElement('div');
+  title.className = 'ado-toc-title';
+  title.textContent = t('Child pages');
+  body.append(title);
+  let pages: Subpage[] | undefined;
+  try { pages = JSON.parse(lookup('subpages', 'page') ?? 'null') ?? undefined; } catch { pages = undefined; }
+  if (!pages) return;
+  const list = (items: Subpage[]) => {
+    const ul = document.createElement('ul');
+    for (const page of items) {
+      const li = document.createElement('li');
+      const link = document.createElement('a');
+      link.textContent = page.title;
+      link.setAttribute('href', page.href);
+      li.append(link);
+      if (page.children.length) li.append(list(page.children));
+      ul.append(li);
+    }
+    return ul;
+  };
+  body.append(list(pages));
 }
 
 const isMermaid = (kind: AdoRawKind, value: string) => kind === 'container' && /^:::\s*mermaid\b/.test(value);
@@ -337,10 +423,12 @@ const adoRawView = $view(adoRawNode, () => (initial: ProseNode, view: EditorView
   show();
   const refresh = () => { if (node.attrs.kind === 'toc') renderToc(body.replaceChildren() ?? body, view); };
   tocRefreshers.add(refresh);
+  // the sub page list arrives later from the host
+  const unsubscribe = onLookup(() => { if (node.attrs.kind === 'tosp') renderSubpages(body); });
 
   return {
     dom,
-    destroy: () => { tocRefreshers.delete(refresh); },
+    destroy: () => { tocRefreshers.delete(refresh); unsubscribe(); },
     update: (n: ProseNode) => {
       if (n.type !== node.type) return false;
       const changed = n.attrs.value !== node.attrs.value || n.attrs.kind !== node.attrs.kind;
@@ -408,6 +496,7 @@ export async function createEditor(root: HTMLElement, markdown: string, options:
     .use(adoRawView)
     .use(imageView)
     .use(htmlView)
+    .use(hardbreakView)
     .use(htmlStylePlugin)
     .use(tocRefreshPlugin)
     .use(workitemPlugin)

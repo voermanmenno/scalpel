@@ -2,7 +2,7 @@
   "name": "scalpel",
   "displayName": "Scalpel – WYSIWYG for Azure DevOps Wiki",
   "description": "%description%",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "publisher": "app-men",
   "author": {
     "name": "App-Men"

@@ -1,8 +1,9 @@
 // Names for '@<GUID>' mentions and titles for '#123' work items, looked up by the extension host
-// (Azure DevOps REST, signed in). Results arrive asynchronously; views subscribe to re-render.
+// (Azure DevOps REST, signed in), and the sub pages of this page for '[[_TOSP_]]' (wiki tree).
+// Results arrive asynchronously; views subscribe to re-render.
 // Without a transport (headless tests) nothing is looked up.
 
-export type LookupKind = 'identity' | 'workitem';
+export type LookupKind = 'identity' | 'workitem' | 'subpages';
 
 let transport: ((kind: LookupKind, key: string) => void) | undefined;
 const results = new Map<string, string | null>();

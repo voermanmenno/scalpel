@@ -30,7 +30,8 @@ export interface AdoRawNode extends MdNode {
 export const IMAGE_SIZE = /^=(\d*)x(\d*)$/;
 
 /// Make ADO-dialect Markdown valid CommonMark by inserting single characters:
-/// - the missing space in headings written as '#Kop' ('#123' at line start stays a work item reference);
+/// - the missing space in headings written as '#Kop' or '##3. Kop' ('#123' at line start stays a work
+///   item reference: only a single '#' followed by a digit);
 /// - quotes around an image size, '](url =600x)' -> '](url "=600x")', so it parses as the image title.
 /// Skips fenced code and ':::' containers. Returns the patched text plus the original offsets of
 /// every inserted character (ascending).
@@ -52,7 +53,7 @@ export function preprocess(text: string): { text: string; inserts: number[] } {
     } else if (/^:::\s*\S/.test(line)) {
       container = true;
     } else {
-      const heading = /^(#{1,6})(?=[^#\s\d])/.exec(line);
+      const heading = /^(#{2,6})(?=[^#\s])/.exec(line) ?? /^(#)(?=[^#\s\d])/.exec(line);
       if (heading) at.push({ col: heading[1].length, char: ' ' });
       for (const m of line.matchAll(/!\[[^\]]*\]\([^)\s]+ (=\d*x\d*)\)/g)) {
         const sizeStart = m.index! + m[0].length - 1 - m[1].length;
@@ -113,7 +114,17 @@ function transformAdo(processor: any, tree: MdNode, text: string) {
     else if (node.type === 'html') result.push(atom('html', raw));
     else if (node.type === 'definition') result.push(atom('definition', raw));
     else if (node.type === 'paragraph' && MACRO.test(raw.trim())) result.push(atom(raw.includes('TOSP') ? 'tosp' : 'toc', raw));
-    else if (CONTAINER_OPEN.test(raw)) {
+    else if (node.type === 'paragraph' && raw.split('\n').every(line => MACRO.test(line.trim()))) {
+      // '[[_TOC_]]' and '[[_TOSP_]]' on consecutive lines: one atom per line, as ADO shows both
+      let at = start;
+      for (const line of raw.split('\n')) {
+        const from = at + line.length - line.trimStart().length;
+        const value = line.trim();
+        const point = (offset: number) => ({ line: lineAt(text, offset), column: offset - text.lastIndexOf('\n', offset - 1), offset });
+        result.push({ type: 'adoRaw', kind: value.includes('TOSP') ? 'tosp' : 'toc', value, position: { start: point(from), end: point(from + value.length) } } as AdoRawNode);
+        at += line.length + 1;
+      }
+    } else if (CONTAINER_OPEN.test(raw)) {
       CONTAINER_CLOSE.lastIndex = start + 3;
       const close = CONTAINER_CLOSE.exec(text);
       if (!close) { result.push(node); continue; }
